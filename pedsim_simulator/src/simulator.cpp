@@ -127,7 +127,7 @@ bool Simulator::initializeSimulation() {
 }
 
 void Simulator::runSimulation() {
-  ros::Rate r(CONFIG.updateRate);
+  ros::WallRate r(CONFIG.updateRate);
   while (ros::ok()) {
     if (SCENE.getTime() < 0.1) {
       // setup the robot

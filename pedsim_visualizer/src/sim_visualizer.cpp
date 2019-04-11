@@ -149,33 +149,33 @@ void SimVisualizer::publishObstacleVisuals() {
   }
 
   const auto current_obstacles = q_obstacles_.front();
-
   visualization_msgs::Marker walls_marker;
-  walls_marker.header.frame_id = "odom";
+  walls_marker.header.frame_id = "map";
   walls_marker.header.stamp = ros::Time();
   walls_marker.id = 10000;
   walls_marker.color.a = 1.0;
   walls_marker.color.r = 0.647059;
   walls_marker.color.g = 0.164706;
   walls_marker.color.b = 0.164706;
-  walls_marker.scale.x = 1.0;
-  walls_marker.scale.y = 1.0;
-  walls_marker.scale.z = 2.0;
+  walls_marker.scale.x = 0.1;
+  walls_marker.scale.y = 0.1;
+  walls_marker.scale.z = 0.1;
   walls_marker.pose.position.z = walls_marker.scale.z / 2.0;
-  walls_marker.type = visualization_msgs::Marker::CUBE_LIST;
-
+  walls_marker.type = visualization_msgs::Marker::LINE_LIST;
   for (const auto& line : current_obstacles->obstacles) {
-    for (const auto& cell : LineObstacleToCells(line.start.x, line.start.y,
-                                                line.end.x, line.end.y)) {
-      geometry_msgs::Point p;
-      p.x = cell.first;
-      p.y = cell.second;
-      p.z = 0.0;
-      walls_marker.points.push_back(p);
-    }
-  }
 
+      geometry_msgs::Point p, q;
+      p.x = line.start.x; //cell.first;
+      p.y = line.start.y; //cell.second;
+      p.z = 0.0;
+      q.x = line.end.x; //cell.first;
+      q.y = line.end.y; //cell.second;
+      q.z = 0.0;
+      walls_marker.points.push_back(p);
+      walls_marker.points.push_back(q);
+  }
   pub_obstacles_visuals_.publish(walls_marker);
+  q_obstacles_.pop();
 }
 
 void SimVisualizer::setupPublishersAndSubscribers() {
@@ -187,11 +187,16 @@ void SimVisualizer::setupPublishersAndSubscribers() {
       nh_.advertise<pedsim_msgs::TrackedGroups>("tracked_groups", 1);
 
   // TODO - get simulator node name by param.
-  sub_states_ = nh_.subscribe("/pedsim_simulator/simulated_agents", 1,
+  std::string simulated_agents_topic = ros::this_node::getNamespace() + "/pedsim_simulator/simulated_agents";
+  sub_states_ = nh_.subscribe(simulated_agents_topic, 1,
                               &SimVisualizer::agentStatesCallBack, this);
-  sub_obstacles_ = nh_.subscribe("/pedsim_simulator/simulated_walls", 1,
+
+  std::string simulated_walls_topic = ros::this_node::getNamespace() + "/pedsim_simulator/simulated_walls";
+  sub_obstacles_ = nh_.subscribe(simulated_walls_topic, 1,
                                  &SimVisualizer::obstaclesCallBack, this);
-  sub_groups_ = nh_.subscribe("/pedsim_simulator/simulated_groups", 1,
+
+  std::string simulated_groups_topic = ros::this_node::getNamespace() + "/pedsim_simulator/simulated_groups";
+  sub_groups_ = nh_.subscribe(simulated_groups_topic, 1,
                               &SimVisualizer::agentGroupsCallBack, this);
 }
 

@@ -1,9 +1,10 @@
-/**
-*
-* Ronja Gueldenring
-* SceneServices provides services to spawn and remove pedestrians dynamically.
-* It forwards the spawned agents to flatland.
-*/
+/*
+ * @name	 	scene_services.cpp
+ * @brief	 	Provides services to spawn and remove pedestrians dynamically. 
+ *          The spawned agents are forwarded to flatland
+ * @author 	Ronja Gueldenring
+ * @date 		2019/04/05
+ **/
 
 #include <pedsim_simulator/element/agent.h>
 #include <pedsim_simulator/element/agentcluster.h>
@@ -32,7 +33,7 @@ SceneServices::SceneServices(){
   spawn_agents_ = nh.serviceClient<flatland_msgs::SpawnModel>(spawn_model_topic);
   std::string delete_model_topic = ros::this_node::getNamespace() + "/delete_model";
   delete_agents_ = nh.serviceClient<flatland_msgs::DeleteModel>(delete_model_topic);
-  //mir_flatlans_path_ = ros::package::getPath("mir_flatland");
+  flatland_path_ = ros::package::getPath("flatland_setup");
 
   // initialize values
   last_id_ = 0;
@@ -72,7 +73,7 @@ bool SceneServices::spawnPed(pedsim_srvs::SpawnPed::Request &request,
         std::string name = "person_" + std::to_string(request.id);
         std::string ns = "pedsim_agent_" +  std::to_string(i);
         flatland_msgs::SpawnModel srv;
-        srv.request.yaml_path = mir_flatlans_path_ + "/objects/person.model.yaml";
+        srv.request.yaml_path = flatland_path_ + "/objects/person.model.yaml";
         srv.request.name = name;
         srv.request.ns = ns;
         srv.request.pose.x = x;

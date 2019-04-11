@@ -17,6 +17,7 @@ set(PEDSIM_SIMULATOR_DEPENDENCIES
   cmake_modules
   dynamic_reconfigure
 	flatland_msgs
+	roslib
 )
 
 ## Find catkin macros and libraries

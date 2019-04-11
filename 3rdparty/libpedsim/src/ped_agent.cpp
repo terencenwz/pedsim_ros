@@ -188,12 +188,11 @@ Ped::Tvector Ped::Tagent::socialForce() const {
 
   return force;
 }
-
 // Added by Ronja Gueldenring
-// Robot influences agents differently, regarding the robot force
+// Robot influences agents behaviour according the robot force
 Ped::Tvector Ped::Tagent::robotForce(){
   double vel = sqrt(pow(this->getvx(),2) + pow(this->getvy(),2));
-  if (vel > 0.001){
+  if (vel > 0.1){
     still_time = 0.0;
   }
 
@@ -201,25 +200,18 @@ Ped::Tvector Ped::Tagent::robotForce(){
   for (const Ped::Tagent* other : neighbors) {
     if(other->getType() == ROBOT){
       if (this->getType() == ADULT_AVOID_ROBOT_REACTION_TIME && other->still_time < 0.7){
+        // reaction time not exceeded
         continue;
       }else{
+        // pedestrian is influenced robot force depending on the distance to the robot.
         Tvector diff = other->p - p;
         Tvector diffDirection = diff.normalized();
         Twaypoint* waypoint = getCurrentWaypoint();
-        if(sqrt(pow((waypoint->getx()-p.x),2) + pow((waypoint->gety()-p.y),2)) > waypoint->getRadius()){
-          Ped::Tangle theta = v.angleTo(diffDirection);
-          angleToRobot = theta.toDegree() + 90;
-          if (angleToRobot > 180){
-            angleToRobot = angleToRobot - 360;
-          }
-          if (angleToRobot > 0){
-            double distanceSquared = diff.lengthSquared();
-            double distance = sqrt(distanceSquared) - (agentRadius + 0.7);
-            double forceAmount = -1 * exp(-distance / forceSigmaObstacle);
-            Tvector robot_force = forceAmount * diff.normalized();
-            force += robot_force;
-          }
-        }
+        double distanceSquared = diff.lengthSquared();
+        double distance = sqrt(distanceSquared) - (agentRadius + 0.7);
+        double forceAmount = -1 * exp(-distance / forceSigmaObstacle);
+        Tvector robot_force = forceAmount * diff.normalized();
+        force += robot_force;
       }
       break;
     }else{
@@ -290,46 +282,28 @@ void Ped::Tagent::computeForces() {
 /// proceed
 void Ped::Tagent::move(double stepSizeIn) {
   still_time += stepSizeIn;
-  double dist_to_robot = 100;
-  for (const Ped::Tagent* other : neighbors) {
-    if (other->id == id) continue;
-    //Added by Ronja Gueldenring
-    //If robot type, we need to compute the distance for later uses.
-    if(other->getType() == ROBOT){
-      Tvector diff = other->p - p;
-      dist_to_robot = sqrt(diff.lengthSquared());
-    }
+
+  // sum of all forces --> acceleration
+  a = forceFactorDesired * desiredforce + forceFactorSocial * socialforce 
+    + forceFactorObstacle * obstacleforce + myforce;
+
+  // Added by Ronja Gueldenring
+  // add robot force, so that pedestrians avoid robot
+  if (this->getType() == ADULT_AVOID_ROBOT || this->getType() == ADULT_AVOID_ROBOT_REACTION_TIME){
+      a = a + forceFactorSocial * robotforce;
+  }
+  // calculate the new velocity
+  if (getTeleop() == false) {
+    v = v + stepSizeIn * a;
   }
 
+  // don't exceed maximal speed
+  double speed = v.length();
+  if (speed > vmax) v = v.normalized() * vmax;
 
-  // Prevents agents from running away from the robot.
-  // If robot is closer than 0.7m and the robot is not 
-  // in the field of view (angleToRobot < 0), the agent doesn't move
-  if(this->getType() == ADULT_AVOID_ROBOT && dist_to_robot <= 0.7 && angleToRobot < 0){
-    v = v.normalized() * 0.0;
-  }else{
-    // sum of all forces --> acceleration
-    a = forceFactorDesired * desiredforce + forceFactorSocial * socialforce 
-      + forceFactorObstacle * obstacleforce + myforce;
-
-    // Added by Ronja Gueldenring
-    // add robot force, so that pedestrians avoid robot
-    if (this->getType() == ADULT_AVOID_ROBOT || this->getType() == ADULT_AVOID_ROBOT_REACTION_TIME){
-       a = a + forceFactorSocial * robotforce;
-    }
-    // calculate the new velocity
-    if (getTeleop() == false) {
-      v = v + stepSizeIn * a;
-    }
-
-    // don't exceed maximal speed
-    double speed = v.length();
-    if (speed > vmax) v = v.normalized() * vmax;
-
-    // internal position update = actual move
-    p += stepSizeIn * v;
-  }
-  
+  // internal position update = actual move
+  p += stepSizeIn * v;
+    
 
   // notice scene of movement
   scene->moveAgent(this);

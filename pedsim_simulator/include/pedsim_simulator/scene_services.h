@@ -1,8 +1,10 @@
-/**
-*
-* Ronja Güldenring
-*
-*/
+/*
+ * @name	 	scene_services.cpp
+ * @brief	 	Provides services to spawn and remove pedestrians dynamically. 
+ *          The spawned agents are forwarded to flatland
+ * @author 	Ronja Gueldenring
+ * @date 		2019/04/05
+ **/
 
 #ifndef _scene_service_h_
 #define _scene_service_h_
@@ -13,9 +15,7 @@
 #include <std_srvs/SetBool.h>
 
   /**
-   * @class SceneServices
-   * @brief It provides services to spawn and remove pedestrians dynamically.
-   * 
+   * This class provides services to spawn and remove pedestrians dynamically.
    */
 class SceneServices {
   // Constructor and Destructor
@@ -27,24 +27,25 @@ class SceneServices {
    ros::NodeHandle nh_;
 
  private:
-  int last_id_;                               //Keeping track of cluster id, that increases in pedsim
-  std::string mir_flatlans_path_;               // path to mir_flatland folder
+  int last_id_;                           //Keeping track of cluster id, that increases in pedsim automatically
+  std::string flatland_path_;             //path to flatland package
 
-  ros::ServiceServer spawn_ped_service_;                // Service to spawn pedestrian
    /**
-     * @brief Spawns Pedestrians in pedsim and flatland
-     */
+    * spawn_ped_service_ + spawnPed
+    * @brief Spawns pedestrian in pedsim and flatland.
+    */
+  ros::ServiceServer spawn_ped_service_;                
   bool spawnPed(pedsim_srvs::SpawnPed::Request &request,
                                 pedsim_srvs::SpawnPed::Response &response);
 
-  ros::ServiceServer remove_all_peds_service_;          // Service to remove all pedestrians
-    /**
-   * @brief Removes all Pedestrians in pedsim and flatland
-   */
+   /**
+    * remove_all_peds_service_ + removeAllPeds
+    * @brief Removes all pedestrians in flatland.
+    */
+  ros::ServiceServer remove_all_peds_service_;          
   bool removeAllPeds(std_srvs::SetBool::Request &request,
                                 std_srvs::SetBool::Response &response);
   
-  // Flatland services that are used to forward agent information
   ros::ServiceClient spawn_agents_;             //Service client to spawn agent in flatland
   ros::ServiceClient delete_agents_;            // Service client to remove agent in flatland.
 };

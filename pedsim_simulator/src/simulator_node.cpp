@@ -32,6 +32,7 @@
 #include <QApplication>
 
 #include <pedsim_simulator/simulator.h>
+#include <pedsim_simulator/scene_services.h>
 
 int main(int argc, char** argv) {
   QApplication app(argc, argv);
@@ -40,6 +41,8 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "pedsim_simulator");
   ros::NodeHandle node("~");
   Simulator sm(node);
+  ROS_WARN("SceneServices");
+  SceneServices s;
 
   // use default SIGINT handler so CTRL+C works
   signal(SIGINT, SIG_DFL);
