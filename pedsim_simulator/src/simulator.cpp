@@ -119,7 +119,7 @@ bool Simulator::initializeSimulation() {
   CONFIG.robot_mode = static_cast<RobotMode>(op_mode);
 
   paused_ = false;
-
+  last_sim_time = ros::Time::now();
   spawn_timer_ =
       nh_.createTimer(ros::Duration(5.0), &Simulator::spawnCallback, this);
 
@@ -127,7 +127,7 @@ bool Simulator::initializeSimulation() {
 }
 
 void Simulator::runSimulation() {
-  ros::WallRate r(CONFIG.updateRate);
+  ros::WallRate r(100);
   while (ros::ok()) {
     if (SCENE.getTime() < 0.1) {
       // setup the robot
@@ -142,6 +142,10 @@ void Simulator::runSimulation() {
 
     if (!paused_) {
       updateRobotPositionFromTF();
+      ros::Time now = ros::Time::now();
+      ros::Duration diff = now - last_sim_time;
+      last_sim_time = now;
+      SCENE.setTimeStepSize(diff.toSec());
       SCENE.moveAllAgents();
 
       publishAgents();
