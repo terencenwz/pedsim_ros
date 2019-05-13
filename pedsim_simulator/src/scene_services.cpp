@@ -21,18 +21,16 @@
 
 
 SceneServices::SceneServices(){
-  ros::NodeHandle nh;
-
   //Pedsim service
   spawn_ped_service_ =
       nh.advertiseService("pedsim_simulator/spawn_ped", &SceneServices::spawnPed, this);
   remove_all_peds_service_ = nh.advertiseService("pedsim_simulator/remove_all_peds", &SceneServices::removeAllPeds, this);
   
   //flatland service clients
-  std::string spawn_model_topic = ros::this_node::getNamespace() + "/spawn_model";
-  spawn_agents_ = nh.serviceClient<flatland_msgs::SpawnModel>(spawn_model_topic);
-  std::string delete_model_topic = ros::this_node::getNamespace() + "/delete_model";
-  delete_agents_ = nh.serviceClient<flatland_msgs::DeleteModel>(delete_model_topic);
+  spawn_model_topic = ros::this_node::getNamespace() + "/spawn_model";
+  spawn_agents_ = nh.serviceClient<flatland_msgs::SpawnModel>(spawn_model_topic, true);
+  delete_model_topic = ros::this_node::getNamespace() + "/delete_model";
+  delete_agents_ = nh.serviceClient<flatland_msgs::DeleteModel>(delete_model_topic, true);
   flatland_path_ = ros::package::getPath("flatland_setup");
 
   // initialize values
@@ -78,6 +76,9 @@ bool SceneServices::spawnPed(pedsim_srvs::SpawnPed::Request &request,
         srv.request.ns = ns;
         srv.request.pose.x = x;
         srv.request.pose.y = y;
+        while(!spawn_agents_.isValid()){
+          spawn_agents_ = nh.serviceClient<flatland_msgs::SpawnModel>(spawn_model_topic, true);
+        }
         spawn_agents_.call(srv);
         if (!srv.response.success)
         {
@@ -108,6 +109,9 @@ bool SceneServices::removeAllPeds(std_srvs::SetBool::Request &request,
       //Deleting pedestrian in flatland
       flatland_msgs::DeleteModel srv;
       srv.request.name = "person_" + std::to_string(count);
+      while(!delete_agents_.isValid()){
+        delete_agents_ = nh.serviceClient<flatland_msgs::DeleteModel>(delete_model_topic, true);
+      }
       delete_agents_.call(srv);
       if (!srv.response.success)
       {

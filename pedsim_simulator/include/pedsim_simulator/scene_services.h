@@ -27,6 +27,7 @@ class SceneServices {
    ros::NodeHandle nh_;
 
  private:
+  ros::NodeHandle nh;
   int last_id_;                           //Keeping track of cluster id, that increases in pedsim automatically
   std::string flatland_path_;             //path to flatland package
 
@@ -46,7 +47,9 @@ class SceneServices {
   bool removeAllPeds(std_srvs::SetBool::Request &request,
                                 std_srvs::SetBool::Response &response);
   
+  std::string spawn_model_topic;
   ros::ServiceClient spawn_agents_;             //Service client to spawn agent in flatland
+  std::string delete_model_topic;
   ros::ServiceClient delete_agents_;            // Service client to remove agent in flatland.
 };
 
