@@ -35,7 +35,7 @@
 #include <pedsim_simulator/scene_services.h>
 
 int main(int argc, char** argv) {
-  QApplication app(argc, argv);
+  // QApplication app(argc, argv);
 
   // initialize resources
   ros::init(argc, argv, "pedsim_simulator");
@@ -55,5 +55,6 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  return app.exec();
+  // return app.exec();
+  return 1;
 }

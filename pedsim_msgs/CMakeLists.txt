@@ -31,6 +31,7 @@ add_message_files( DIRECTORY msg
   SocialRelations.msg
   SocialActivity.msg
   SocialActivities.msg
+  Ped.msg
 )
 
 # generate the messages

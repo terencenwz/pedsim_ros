@@ -79,7 +79,7 @@ class Agent : public ScenarioElement, public Ped::Tagent {
   bool removeWaypoint(Waypoint* waypointIn);
 
   Ped::Twaypoint* getCurrentDestination() const;
-  bool needNewDestination() const;
+  bool needNewDestination();
 
   // → group
   bool isInGroup() const;
@@ -147,6 +147,10 @@ class Agent : public ScenarioElement, public Ped::Tagent {
 
   // → waypoint planner
   WaypointPlanner* waypointplanner;
+
+  bool hasWaitedAtWaipoint(bool wp_reached);
+
+  double waiting_time_;
 };
 
 #endif

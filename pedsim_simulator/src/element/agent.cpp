@@ -50,6 +50,7 @@ Agent::Agent() {
   stateMachine = new AgentStateMachine(this);
   // group
   group = nullptr;
+  waiting_time_ = 0.0;
 }
 
 Agent::~Agent() {
@@ -148,6 +149,7 @@ void Agent::updateState() {
 }
 
 void Agent::move(double h) {
+  waiting_time_ += h;
   if (getType() == Ped::Tagent::ROBOT) {
     if (CONFIG.robot_mode == RobotMode::TELEOPERATION) {
       // NOTE: Moving is now done by setting x, y position directly in
@@ -212,13 +214,26 @@ bool Agent::removeWaypoint(Waypoint* waypointIn) {
   return (removeCount > 0);
 }
 
-bool Agent::needNewDestination() const {
-  if (waypointplanner == nullptr)
+bool Agent::needNewDestination(){
+  if (waypointplanner == nullptr){
     return (!destinations.isEmpty());
-  else {
+  }else {
+    bool wp_reached = waypointplanner->hasCompletedDestination();
+    return hasWaitedAtWaipoint(wp_reached);
     // ask waypoint planner
-    return waypointplanner->hasCompletedDestination();
+    // return wp_reached;
   }
+}
+
+bool Agent::hasWaitedAtWaipoint(bool wp_reached){
+  if(wp_reached && waiting_time_ > 1.0){
+      return true;
+    }else{
+      if(!wp_reached){
+        waiting_time_ = 0.0;
+      }
+      return false;
+    }
 }
 
 Ped::Twaypoint* Agent::getCurrentWaypoint() const {

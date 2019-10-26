@@ -32,15 +32,16 @@ Ped::Tagent::Tagent() {
   teleop = false;
 
   // assign random maximal speed in m/s
-  // normal_distribution<double> distribution(1.34, 0.26);
-  normal_distribution<double> distribution(0.4, 0.15);
+  // normal_distribution<double> distribution(1.34, 0.7);
+  // normal_distribution<double> distribution(0.8, 0.3);
+  // normal_distribution<double> distribution(1.0, 0.3);
+  normal_distribution<double> distribution(0.6, 0.2);
   vmax = distribution(generator);
-
   forceFactorDesired = 1.0;
   forceFactorSocial = 2.1;
   forceFactorObstacle = 10.0;
   forceSigmaObstacle = 0.8;
-  forceSigmaRobot = 0.8;
+  forceSigmaRobot = 0.3*vmax/0.4;
 
   agentRadius = 0.35;
   relaxationTime = 0.5;
@@ -199,25 +200,21 @@ Ped::Tvector Ped::Tagent::robotForce(){
   Tvector force;
   for (const Ped::Tagent* other : neighbors) {
     if(other->getType() == ROBOT){
-      if (this->getType() == ADULT_AVOID_ROBOT_REACTION_TIME && other->still_time < 0.7){
+      if (this->getType() == ADULT_AVOID_ROBOT_REACTION_TIME && (other->still_time < 0.7 || vel < 0.1)){
         // reaction time not exceeded
         continue;
       }else{
         // pedestrian is influenced robot force depending on the distance to the robot.
         Tvector diff = other->p - p;
         Tvector diffDirection = diff.normalized();
-        Twaypoint* waypoint = getCurrentWaypoint();
         double distanceSquared = diff.lengthSquared();
         double distance = sqrt(distanceSquared) - (agentRadius + 0.7);
-        double forceAmount = -1 * exp(-distance / forceSigmaObstacle);
+        double forceAmount = -1.0 * exp(-distance / forceSigmaRobot);
         Tvector robot_force = forceAmount * diff.normalized();
         force += robot_force;
       }
       break;
-    }else{
-        continue;
-     }
-
+    }
   }
   return force;
 }

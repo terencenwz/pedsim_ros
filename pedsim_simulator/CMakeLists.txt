@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(pedsim_simulator)
 add_definitions(-Wall -Wunused -std=c++11 -pipe -Wunused -Wextra)
 # add_definitions(-Wall -Wunused -std=c++11 -pipe -Wshadow -Wunused -Wextra)
+# set(CMAKE_BUILD_TYPE Debug)
 set(PEDSIM_SIMULATOR_DEPENDENCIES
   roscpp
   rospy
