@@ -53,7 +53,6 @@ bool SceneServices::spawnPed(pedsim_srvs::SpawnPeds::Request &request,
              std::vector<flatland_msgs::Model> new_models = addAgentClusterToPedsim(ped);
         srv.request.models.insert(srv.request.models.end(), new_models.begin(), new_models.end());
       }
-      ROS_WARN("Adding to pedsim: %f", (ros::WallTime::now() - start).toSec());
       start = ros::WallTime::now();
       while(!spawn_agents_.isValid()){
           ROS_WARN("Reconnecting spawn_agents_-server....");
@@ -64,10 +63,7 @@ bool SceneServices::spawnPed(pedsim_srvs::SpawnPeds::Request &request,
       if (!srv.response.success)
       {
           ROS_ERROR("Failed to spawn all %d agents", request.peds.size());
-      }else{
-          ROS_WARN("Spawned %d agents in flatland", request.peds.size());
       }
-      ROS_WARN("Adding to flatland: %f", (ros::WallTime::now() - start).toSec());
       response.finished = true;
       return true;
 }
@@ -83,7 +79,6 @@ bool SceneServices::respawnPeds(pedsim_srvs::SpawnPeds::Request &request,
     std::vector<flatland_msgs::Model> new_models = addAgentClusterToPedsim(ped);
     srv.request.new_models.insert(srv.request.new_models.end(), new_models.begin(), new_models.end());
   }
-  ROS_WARN("Deleting and Spawning in pedsim: %f", (ros::Time::now() - begin).toSec());
 
   begin = ros::Time::now();
   while(!respawn_agents_.isValid()){
@@ -95,10 +90,7 @@ bool SceneServices::respawnPeds(pedsim_srvs::SpawnPeds::Request &request,
   if (!srv.response.success)
   {
       ROS_ERROR("Failed to respawn all %d agents", request.peds.size());
-  }else{
-      ROS_WARN("Respawned %d agents in flatland", request.peds.size());
   }
-  ROS_WARN("Respawning in flatland: %f", (ros::Time::now() - begin).toSec());
   response.finished = true;
   return true;
 }
@@ -119,8 +111,6 @@ bool SceneServices::removeAllPeds(std_srvs::SetBool::Request &request,
     if (!srv.response.success)
     {
         ROS_ERROR("Failed to delete all %d agents. Maybe a few were deleted.", srv.request.name.size());
-    }else{
-        ROS_WARN("Deleted %d agents.", srv.request.name.size());
     }
 
     response.success = true;
