@@ -64,12 +64,14 @@ class LIBEXPORT Tagent {
   virtual void SetRadius(double radius) { agentRadius = radius; }
 
   void setTeleop(bool opstatus) { teleop = opstatus; }
+  void setRobotPosDiffScalingFactor(double scalingFactor);
 
   int getId() const { return id; };
   AgentType getType() const { return type; };
   double getVmax() const { return vmax; };
   double getRelaxationTime() const { return relaxationTime; };
   bool getTeleop() { return teleop; }
+  double getRobotPosDiffScalingFactor() const { return robotPosDiffScalingFactor; };
 
   // these getter should replace the ones later (returning the individual vector
   // values)
@@ -109,6 +111,7 @@ class LIBEXPORT Tagent {
   double angleToRobot;
   double relaxationTime;
   bool teleop;
+  double robotPosDiffScalingFactor;
 
   double forceFactorDesired;
   double forceFactorSocial;

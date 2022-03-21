@@ -32,6 +32,8 @@ add_message_files( DIRECTORY msg
   SocialActivity.msg
   SocialActivities.msg
   Ped.msg
+  Waypoint.msg
+  Waypoints.msg
 )
 
 # generate the messages
