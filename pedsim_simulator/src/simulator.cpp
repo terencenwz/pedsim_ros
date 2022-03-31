@@ -138,19 +138,19 @@ bool Simulator::initializeSimulation() {
 void Simulator::runSimulation() {
   ros::Rate r(CONFIG.updateRate);
   while (ros::ok()) {
-    if (!robot_) {
-      // setup the robot
-      for (Agent* agent : SCENE.getAgents()) {
-        if (agent->getType() == Ped::Tagent::ROBOT) {
-          robot_ = agent;
-          last_robot_orientation_ =
-              poseFrom2DVelocity(robot_->getvx(), robot_->getvy());
-        }
-      }
-    }
+//    if (!robot_) {
+//      // setup the robot
+//      for (Agent* agent : SCENE.getAgents()) {
+//        if (agent->getType() == Ped::Tagent::ROBOT) {
+//          robot_ = agent;
+//          last_robot_orientation_ =
+//              poseFrom2DVelocity(robot_->getvx(), robot_->getvy());
+//        }
+//      }
+//    }
 
     if (!paused_) {
-      updateRobotPositionFromTF();
+      //updateRobotPositionFromTF();
       ros::Time now = ros::Time::now();
       ros::Duration diff = now - last_sim_time;
       last_sim_time = now;
@@ -158,10 +158,10 @@ void Simulator::runSimulation() {
       SCENE.moveAllAgents();
 
       publishAgents();
-      publishGroups();
-      publishRobotPosition();
-      publishObstacles();
-      publishWaypoints();
+//      publishGroups();
+//      publishRobotPosition();
+//      publishObstacles();
+//      publishWaypoints();
     }
     ros::spinOnce();
     r.sleep();
@@ -324,14 +324,14 @@ void Simulator::publishAgents() {
 
     AgentStateMachine::AgentState sc = a->getStateMachine()->getCurrentState();
     state.social_state = agentStateToActivity(sc);
-    if (a->getType() == Ped::Tagent::ELDER) {
-      state.social_state = pedsim_msgs::AgentState::TYPE_STANDING;
-    }
-
-    // Skip robot.
-    if (a->getType() == Ped::Tagent::ROBOT) {
-      continue;
-    }
+//    if (a->getType() == Ped::Tagent::ELDER) {
+//      state.social_state = pedsim_msgs::AgentState::TYPE_STANDING;
+//    }
+//
+//    // Skip robot.
+//    if (a->getType() == Ped::Tagent::ROBOT) {
+//      continue;
+//    }
 
     // Forces.
     pedsim_msgs::AgentForce agent_forces;
